@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Calcul mental</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Calcul">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#1b2333">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap">
 <style>
 :root { --bg: #f4f5f8; --surface: #fff; --fg: #1b2333; --muted: #6a7489; --line: #d9dee8; color-scheme: light; }
@@ -27,6 +34,9 @@ a:focus-visible { outline: 3px solid var(--c); outline-offset: 2px; }
   <a href="carres/" style="--c:#0f7f86"><b>Carrés de 1 à 20</b><span>Dans l'ordre, mélangé ou en retrouvant la racine.</span></a>
   <a href="cubes/" style="--c:#6a48c9"><b>Cubes de 1 à 10</b><span>Dans l'ordre, mélangé ou en retrouvant la racine.</span></a>
   <a href="lettres/" style="--c:#b8306f"><b>Rang des lettres</b><span>Une lettre, son rang dans l'alphabet.</span></a>
+  <p id="install" style="color:var(--muted);font-size:14px;line-height:1.45;margin:4px 0 0">Pour l'installer sur iPhone : dans Safari, bouton Partager, puis « Sur l'écran d'accueil ». Les jeux marchent ensuite sans internet.</p>
 </main>
+<script>if (navigator.standalone || matchMedia("(display-mode: standalone)").matches) document.getElementById("install").hidden = true;</script>
+<script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js", { scope: "./" });</script>
 </body>
 </html>
