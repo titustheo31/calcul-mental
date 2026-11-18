@@ -11,4 +11,4 @@ Quatre petits jeux chronométrés, une page HTML chacun, sans dépendance.
 
 Règles communes : une erreur coûte 2 secondes ; après 2 erreurs de suite, la réponse s'affiche en jaune et on passe à la suivante. Les records sont gardés dans le navigateur (localStorage).
 
-Pour jouer : ouvrir `index.html` à la racine, ou activer GitHub Pages (Settings > Pages > branche `main`, dossier `/`).
+Pour jouer : https://titustheo31.github.io/calcul-mental/
