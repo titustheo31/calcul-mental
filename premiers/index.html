@@ -1,0 +1,188 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Chasse aux premiers</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: one-screen app — timer bar on top, 10×10 square grid filling the width, controls below */
+:root {
+  --bg: #eef1f6;
+  --surface: #ffffff;
+  --fg: #1b2333;
+  --muted: #6a7489;
+  --line: #d5dbe6;
+  --accent: #3b5bdb;
+  --good: #1f9d55;
+  --good-bg: #d6f5e3;
+  --bad: #d63a3a;
+  --bad-bg: #fde0e0;
+  --warn: #a86d00;
+  --warn-bg: #fff1c2;
+  --font-num: "Space Grotesk", ui-rounded, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121722; --surface: #1c2331; --fg: #e8ecf4; --muted: #8b95aa; --line: #2c3547;
+  --accent: #7b96ff; --good: #3fd383; --good-bg: #173b2a; --bad: #ff6b6b; --bad-bg: #4a1f24; --warn: #ffd45c; --warn-bg: #4a3b12; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #121722; --surface: #1c2331; --fg: #e8ecf4; --muted: #8b95aa; --line: #2c3547;
+  --accent: #7b96ff; --good: #3fd383; --good-bg: #173b2a; --bad: #ff6b6b; --bad-bg: #4a1f24; --warn: #ffd45c; --warn-bg: #4a3b12; color-scheme: dark }
+
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-num);
+  padding-left: max(12px, env(safe-area-inset-left, 0px));
+  padding-right: max(12px, env(safe-area-inset-right, 0px));
+  -webkit-user-select: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.app { max-width: 520px; margin: 0 auto; padding-block: 12px 20px; display: flex; flex-direction: column; gap: 12px; }
+
+.top { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; }
+.timer { font-family: var(--font-mono); font-size: clamp(34px, 11vw, 52px); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; line-height: 1; position: relative; }
+.timer.running { color: var(--fg); }
+.timer.done { color: var(--good); }
+.pen { position: absolute; left: 100%; top: 0; margin-left: 6px; font-size: 18px; color: var(--bad); opacity: 0; pointer-events: none; }
+.pen.show { animation: pop 0.9s ease-out; }
+@keyframes pop { 0% { opacity: 1; transform: translateY(6px); } 100% { opacity: 0; transform: translateY(-14px); } }
+
+.btn { font: 700 17px var(--font-num); border: 0; border-radius: 12px; padding: 12px 18px; background: var(--accent); color: #fff; cursor: pointer; touch-action: manipulation; }
+.btn.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+.btn:focus-visible, .cell:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.stats { display: flex; gap: 14px; flex-wrap: wrap; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.stats b { color: var(--fg); }
+.next b { color: var(--accent); }
+
+.grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; }
+.cell {
+  aspect-ratio: 1; max-width: 100%; min-width: 0;
+  font: 700 clamp(13px, 4.2vw, 20px) var(--font-num); font-variant-numeric: tabular-nums;
+  background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 0; cursor: pointer; touch-action: manipulation;
+  transition: background-color .15s, transform .08s;
+}
+.cell:active { transform: scale(0.92); }
+.grid.idle .cell { opacity: 0.45; cursor: default; }
+.cell.good { background: var(--good-bg); color: var(--good); border-color: var(--good); }
+.cell.bad { background: var(--bad-bg); color: var(--bad); border-color: var(--bad); }
+.cell.shown { background: var(--warn-bg); color: var(--warn); border-color: var(--warn); }
+.cell.flash { animation: shake .35s; }
+@keyframes shake { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+
+.result { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; display: grid; gap: 6px; font-size: 15px; }
+.result h2 { margin: 0; font-size: 20px; }
+.result .list { font-family: var(--font-mono); font-size: 13px; color: var(--muted); line-height: 1.6; }
+.hint { font-size: 13px; color: var(--muted); margin: 0; line-height: 1.45; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; }
+@media (prefers-reduced-motion: reduce) { .pen.show, .cell.flash { animation: none; } .cell { transition: none; } }
+</style>
+
+<div class="app">
+  <div class="top">
+    <div class="timer" id="timer">00:00.0<span class="pen" id="pen">+2 s</span></div>
+    <button class="btn" id="startBtn">Démarrer</button>
+  </div>
+  <div class="stats">
+    <span>Trouvés <b id="found">0</b>/25</span>
+    <span>Erreurs <b id="errors">0</b></span>
+    <span>Record <b id="best">—</b></span>
+  </div>
+  <div class="grid idle" id="grid" aria-label="Nombres de 1 à 100"></div>
+  <div class="result" id="result" hidden>
+    <h2 id="resTitle">Bravo !</h2>
+    <div id="resLine"></div>
+    <div class="list" id="resList"></div>
+  </div>
+  <p class="hint" id="hint">Touche les 25 nombres premiers dans l'ordre, de 2 à 97. Bonne réponse : vert. Mauvaise réponse : rouge et 2 secondes de pénalité. Après 2 erreurs de suite, la bonne réponse s'affiche en jaune et on passe au suivant.</p>
+  <div class="row"><button class="btn ghost" id="resetBest">Effacer le record</button></div>
+</div>
+
+<script>
+const PRIMES = [];
+for (let n = 2; n <= 100; n++) { let p = true; for (let d = 2; d * d <= n; d++) if (n % d === 0) { p = false; break; } if (p) PRIMES.push(n); }
+
+const $ = id => document.getElementById(id);
+const grid = $("grid"), timerEl = $("timer"), penEl = $("pen");
+const cells = [];
+for (let n = 1; n <= 100; n++) {
+  const b = document.createElement("button");
+  b.className = "cell"; b.textContent = n; b.id = "c" + n;
+  b.addEventListener("click", () => tap(n));
+  grid.appendChild(b); cells[n] = b;
+}
+
+let state = "idle", idx = 0, errors = 0, penalty = 0, t0 = 0, raf = 0, finalMs = 0, streak = 0, shown = 0;
+
+function fmt(ms) {
+  const tenths = Math.floor(ms / 100), s = Math.floor(tenths / 10), m = Math.floor(s / 60);
+  return String(m).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0") + "." + (tenths % 10);
+}
+function elapsed() { return performance.now() - t0 + penalty; }
+function setTime(ms) { timerEl.firstChild.nodeValue = fmt(ms); }
+function loop() { setTime(elapsed()); raf = requestAnimationFrame(loop); }
+
+function getBest() { try { return Number(localStorage.getItem("primes-best")) || 0; } catch (e) { return 0; } }
+function setBest(v) { try { v ? localStorage.setItem("primes-best", v) : localStorage.removeItem("primes-best"); } catch (e) {} }
+function showBest() { const b = getBest(); $("best").textContent = b ? fmt(b) : "—"; }
+
+function start() {
+  cells.forEach(c => c && (c.className = "cell"));
+  idx = 0; errors = 0; penalty = 0; streak = 0; shown = 0;
+  $("found").textContent = 0; $("errors").textContent = 0;
+  $("result").hidden = true; $("hint").hidden = false;
+  grid.classList.remove("idle");
+  timerEl.className = "timer running";
+  state = "run"; t0 = performance.now();
+  $("startBtn").textContent = "Recommencer";
+  cancelAnimationFrame(raf); loop();
+}
+
+function tap(n) {
+  if (state !== "run") return;
+  const c = cells[n];
+  if (c.classList.contains("good") || c.classList.contains("shown")) return;  // déjà trouvé ou révélé
+  if (n === PRIMES[idx]) {
+    c.className = "cell good"; idx++; streak = 0;
+    $("found").textContent = idx;
+    if (idx === PRIMES.length) finish();
+  } else {
+    streak++;
+    errors++; penalty += 2000;
+    $("errors").textContent = errors;
+    penEl.classList.remove("show"); void penEl.offsetWidth; penEl.classList.add("show");
+    const isPrime = PRIMES.includes(n);
+    c.className = "cell bad flash";
+    // un premier touché trop tôt redevient neutre, un non-premier reste rouge
+    if (isPrime) setTimeout(() => { if (!c.classList.contains("good")) c.className = "cell"; }, 700);
+    if (navigator.vibrate) try { navigator.vibrate(80); } catch (e) {}
+    // 2 erreurs de suite : on révèle la réponse en jaune, sans pénalité en plus, et on passe au suivant
+    if (streak >= 2) {
+      cells[PRIMES[idx]].className = "cell shown";
+      idx++; shown++; streak = 0;
+      $("found").textContent = idx;
+      if (idx === PRIMES.length) finish();
+    }
+  }
+}
+
+function finish() {
+  cancelAnimationFrame(raf);
+  finalMs = elapsed(); setTime(finalMs);
+  state = "done"; timerEl.className = "timer done";
+  $("startBtn").textContent = "Rejouer";
+  const prev = getBest(), record = !prev || finalMs < prev;
+  if (record) setBest(Math.round(finalMs));
+  showBest();
+  $("resTitle").textContent = record ? "Nouveau record !" : "Terminé !";
+  $("resLine").textContent = "Temps " + fmt(finalMs) + " · " + errors + " erreur" + (errors > 1 ? "s" : "") + " (+" + errors * 2 + " s)" + (shown ? " · " + shown + " révélé" + (shown > 1 ? "s" : "") + " en jaune" : "");
+  $("resList").textContent = PRIMES.join(" · ");
+  $("result").hidden = false; $("hint").hidden = true;
+}
+
+$("startBtn").addEventListener("click", start);
+$("resetBest").addEventListener("click", () => { setBest(0); showBest(); });
+showBest();
+</script>
+
+</body></html>

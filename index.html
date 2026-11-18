@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Calcul mental</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+:root { --bg: #f4f5f8; --surface: #fff; --fg: #1b2333; --muted: #6a7489; --line: #d9dee8; color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root { --bg: #121722; --surface: #1c2331; --fg: #e8ecf4; --muted: #8b95aa; --line: #2c3547; color-scheme: dark; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: "Space Grotesk", system-ui, sans-serif;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 24px max(16px, env(safe-area-inset-left)); }
+main { max-width: 480px; margin: 0 auto; display: grid; gap: 12px; }
+h1 { margin: 8px 0 4px; font-size: 32px; letter-spacing: -0.02em; }
+a { display: grid; gap: 4px; text-decoration: none; color: inherit; background: var(--surface); border: 1px solid var(--line);
+  border-left: 6px solid var(--c); border-radius: 16px; padding: 16px; }
+a b { font-size: 20px; }
+a span { color: var(--muted); font-size: 14px; line-height: 1.4; }
+a:focus-visible { outline: 3px solid var(--c); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Calcul mental</h1>
+  <a href="premiers/" style="--c:#3b5bdb"><b>Chasse aux premiers</b><span>Touche les 25 nombres premiers de 1 à 100, dans l'ordre.</span></a>
+  <a href="carres/" style="--c:#0f7f86"><b>Carrés de 1 à 20</b><span>Dans l'ordre, mélangé ou en retrouvant la racine.</span></a>
+  <a href="cubes/" style="--c:#6a48c9"><b>Cubes de 1 à 10</b><span>Dans l'ordre, mélangé ou en retrouvant la racine.</span></a>
+  <a href="lettres/" style="--c:#b8306f"><b>Rang des lettres</b><span>Une lettre, son rang dans l'alphabet.</span></a>
+</main>
+</body>
+</html>

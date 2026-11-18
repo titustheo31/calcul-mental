@@ -1,0 +1,271 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Rang des lettres</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: one column, everything in the top half of the screen so the iPhone keyboard never hides the question */
+:root {
+  --bg: #f7eff3;
+  --surface: #ffffff;
+  --fg: #2a1a22;
+  --muted: #7a6470;
+  --line: #ead8e1;
+  --accent: #b8306f;
+  --accent-fg: #ffffff;
+  --good: #1f9d55;
+  --good-bg: #d6f5e3;
+  --bad: #d63a3a;
+  --bad-bg: #fde0e0;
+  --warn: #a86d00;
+  --warn-bg: #fff1c2;
+  --font-num: "Space Grotesk", ui-rounded, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #1a1217; --surface: #261a21; --fg: #f3e8ee; --muted: #a8919d; --line: #3b2a34;
+  --accent: #ff7ab3; --accent-fg: #3a0c22; --good: #3fd383; --good-bg: #173b2a; --bad: #ff6b6b; --bad-bg: #4a1f24;
+  --warn: #ffd45c; --warn-bg: #4a3b12; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #1a1217; --surface: #261a21; --fg: #f3e8ee; --muted: #a8919d; --line: #3b2a34;
+  --accent: #ff7ab3; --accent-fg: #3a0c22; --good: #3fd383; --good-bg: #173b2a; --bad: #ff6b6b; --bad-bg: #4a1f24;
+  --warn: #ffd45c; --warn-bg: #4a3b12; color-scheme: dark }
+
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-num);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  -webkit-tap-highlight-color: transparent;
+}
+.app { max-width: 480px; margin: 0 auto; padding-block: 14px 24px; }
+section { display: flex; flex-direction: column; gap: 14px; }
+h1 { margin: 0; font-size: 34px; letter-spacing: -0.02em; text-wrap: balance; }
+h2 { margin: 0; font-size: 22px; }
+p { margin: 0; color: var(--muted); line-height: 1.45; font-size: 15px; }
+
+button { font-family: var(--font-num); touch-action: manipulation; cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.btn { font-weight: 700; font-size: 17px; border: 0; border-radius: 12px; padding: 13px 18px; background: var(--accent); color: var(--accent-fg); }
+.btn.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+.btn.small { font-size: 14px; padding: 8px 12px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+.label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 700; }
+.marks { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.marks div { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 4px; text-align: center; }
+.marks b { display: block; font-size: 28px; color: var(--accent); line-height: 1.1; }
+.marks span { font-family: var(--font-mono); font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.count { font-family: var(--font-mono); font-size: 64px; font-weight: 700; text-align: center; line-height: 1; font-variant-numeric: tabular-nums; }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+.scale { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); font-family: var(--font-mono); }
+.best { font-family: var(--font-mono); font-size: 13px; color: var(--accent); text-align: center; min-height: 1em; }
+
+.top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.timer { font-family: var(--font-mono); font-size: 34px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; position: relative; }
+.pen { position: absolute; left: 100%; top: 0; margin-left: 6px; font-size: 16px; color: var(--bad); opacity: 0; pointer-events: none; white-space: nowrap; }
+.pen.show { animation: pop .9s ease-out; }
+@keyframes pop { 0% { opacity: 1; transform: translateY(6px); } 100% { opacity: 0; transform: translateY(-14px); } }
+
+.meta { display: flex; justify-content: space-between; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.meta b { color: var(--fg); }
+.bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+
+.q { font-size: clamp(56px, 20vw, 84px); font-weight: 700; text-align: center; letter-spacing: -0.01em; line-height: 1.1; }
+.q .blank { display: inline-block; min-width: 1.2em; border-bottom: 5px solid var(--accent); color: var(--accent); font-size: 0.6em; }
+form { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+#answer {
+  font: 700 32px var(--font-mono); text-align: center; min-width: 0;
+  background: var(--surface); color: var(--fg); border: 2px solid var(--line); border-radius: 14px; padding: 10px;
+}
+#answer:focus { border-color: var(--accent); outline: none; }
+#answer.shake { animation: shake .35s; border-color: var(--bad); }
+@keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+.fb { min-height: 44px; border-radius: 12px; padding: 10px 14px; font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; display: flex; align-items: center; border: 1px solid transparent; }
+.fb.good { background: var(--good-bg); color: var(--good); border-color: var(--good); }
+.fb.bad { background: var(--bad-bg); color: var(--bad); border-color: var(--bad); }
+.fb.warn { background: var(--warn-bg); color: var(--warn); border-color: var(--warn); }
+.fb.empty { color: var(--muted); font-weight: 500; font-size: 14px; }
+
+.result { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: grid; gap: 6px; }
+.big { font-family: var(--font-mono); font-size: 44px; font-weight: 700; color: var(--good); line-height: 1.1; }
+.table { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.table div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 6px 2px; text-align: center; font-family: var(--font-mono); font-size: 13px; font-variant-numeric: tabular-nums; }
+.table div b { display: block; font-size: 18px; font-family: var(--font-num); }
+.table div.mark { border-color: var(--accent); }
+.table div.miss { background: var(--warn-bg); border-color: var(--warn); color: var(--warn); }
+@media (prefers-reduced-motion: reduce) { .pen.show, #answer.shake { animation: none; } .bar i { transition: none; } }
+</style>
+
+<div class="app">
+  <section id="home">
+    <h1>Rang des lettres</h1>
+    <p>On te donne une lettre, tu tapes son rang dans l'alphabet. Une erreur coûte 2 secondes. Après 2 erreurs de suite, la réponse s'affiche en jaune et on passe à la suivante.</p>
+    <div class="label">Repères</div>
+    <div class="marks">
+      <div><b>E</b><span>5</span></div>
+      <div><b>J</b><span>10</span></div>
+      <div><b>O</b><span>15</span></div>
+      <div><b>T</b><span>20</span></div>
+      <div><b>Y</b><span>25</span></div>
+    </div>
+    <h2>Combien de questions ?</h2>
+    <div class="count" id="countVal">10</div>
+    <input type="range" id="countRange" min="5" max="25" step="1" value="10" aria-label="Nombre de questions">
+    <div class="scale"><span>5</span><span>10</span><span>15</span><span>20</span><span>25</span></div>
+    <button class="btn" id="startBtn">Commencer</button>
+    <div class="best" id="best"></div>
+  </section>
+
+  <section id="game" hidden>
+    <div class="top">
+      <div class="timer" id="timer">00:00.0<span class="pen" id="pen">+2 s</span></div>
+      <button class="btn ghost small" id="quit">Quitter</button>
+    </div>
+    <div class="meta"><span>Question <b id="prog">1/10</b></span><span>Erreurs <b id="errs">0</b></span></div>
+    <div class="bar"><i id="barFill"></i></div>
+    <div class="q" id="q"></div>
+    <form id="form" autocomplete="off">
+      <input id="answer" type="text" inputmode="numeric" pattern="[0-9]*" enterkeyhint="done" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Rang de la lettre">
+      <button class="btn" id="ok" type="submit">OK</button>
+    </form>
+    <div class="fb empty" id="fb">La réponse passe toute seule quand elle est juste.</div>
+  </section>
+
+  <section id="end" hidden>
+    <div class="result">
+      <h2 id="endTitle">Terminé !</h2>
+      <div class="big" id="endTime">00:00.0</div>
+      <div id="endLine"></div>
+    </div>
+    <div class="row">
+      <button class="btn" id="again">Rejouer</button>
+      <button class="btn ghost" id="toMenu">Menu</button>
+    </div>
+    <p id="tableNote">L'alphabet. En jaune : les lettres à revoir.</p>
+    <div class="table" id="table"></div>
+  </section>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const input = $("answer");
+const show = id => ["home", "game", "end"].forEach(s => $(s).hidden = s !== id);
+const ABC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const MARKS = [5, 10, 15, 20, 25];
+
+let count = 10, qs = [], i = 0, errors = 0, penalty = 0, streak = 0, missed = [];
+let t0 = 0, raf = 0, running = false;
+
+function fmt(ms) {
+  const t = Math.floor(ms / 100), s = Math.floor(t / 10), m = Math.floor(s / 60);
+  return String(m).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0") + "." + (t % 10);
+}
+const elapsed = () => performance.now() - t0 + penalty;
+function loop() { $("timer").firstChild.nodeValue = fmt(elapsed()); raf = requestAnimationFrame(loop); }
+
+const bestKey = c => "lettres-best-" + c;
+function getBest(k) { try { return Number(localStorage.getItem(k)) || 0; } catch (e) { return 0; } }
+function setBest(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function showBest() { const b = getBest(bestKey(count)); $("best").textContent = b ? "Record sur " + count + " questions : " + fmt(b) : ""; }
+function showHome() {
+  try { count = Number(localStorage.getItem("lettres-count")) || 10; } catch (e) { count = 10; }
+  $("countRange").value = count; $("countVal").textContent = count;
+  showBest(); show("home");
+}
+
+function shuffle(a) { for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [a[k], a[j]] = [a[j], a[k]]; } return a; }
+const eq = n => ABC[n - 1] + " = " + n;
+
+function render() {
+  $("q").innerHTML = ABC[qs[i] - 1] + ' <span class="blank">?</span>';
+  $("prog").textContent = (i + 1) + "/" + qs.length;
+  $("barFill").style.width = (i / qs.length * 100) + "%";
+}
+function feedback(cls, text) { const f = $("fb"); f.className = "fb " + cls; f.textContent = text; }
+
+// Appelé directement dans le geste de l'utilisateur pour que le clavier de l'iPhone s'ouvre
+function start() {
+  qs = shuffle(Array.from({ length: 26 }, (_, k) => k + 1)).slice(0, count);
+  i = 0; errors = 0; penalty = 0; streak = 0; missed = [];
+  show("game");
+  input.value = ""; input.focus();
+  $("errs").textContent = "0";
+  feedback("empty", "La réponse passe toute seule quand elle est juste.");
+  render();
+  t0 = performance.now(); running = true;
+  cancelAnimationFrame(raf); loop();
+}
+
+function next() {
+  i++; streak = 0; input.value = "";
+  if (i >= qs.length) finish(); else render();
+}
+function good() { feedback("good", "✓ " + eq(qs[i])); next(); }
+function bad(v) {
+  errors++; penalty += 2000; streak++;
+  $("errs").textContent = errors;
+  const p = $("pen"); p.classList.remove("show"); void p.offsetWidth; p.classList.add("show");
+  input.classList.remove("shake"); void input.offsetWidth; input.classList.add("shake");
+  input.value = "";
+  if (navigator.vibrate) try { navigator.vibrate(80); } catch (e) {}
+  if (streak >= 2) {
+    missed.push(qs[i]);
+    feedback("warn", eq(qs[i]) + " : à retenir");
+    next();
+  } else {
+    feedback("bad", v + " : faux, +2 s");
+  }
+}
+
+input.addEventListener("input", () => {
+  if (!running) return;
+  const v = input.value.replace(/\D/g, "");
+  if (v !== input.value) input.value = v;
+  if (!v) return;
+  const a = String(qs[i]);
+  if (v === a) good();
+  else if (v.length >= a.length) bad(v);   // autant de chiffres que la réponse, mais faux
+});
+$("form").addEventListener("submit", e => {
+  e.preventDefault();
+  if (!running) return;
+  const v = input.value.replace(/\D/g, "");
+  if (v && v !== String(qs[i])) bad(v);
+  input.focus();
+});
+input.addEventListener("animationend", () => input.classList.remove("shake"));
+// Garde le clavier ouvert quand on touche OK
+$("ok").addEventListener("pointerdown", e => e.preventDefault());
+
+function finish() {
+  running = false; cancelAnimationFrame(raf);
+  const t = elapsed(); input.blur();
+  $("timer").firstChild.nodeValue = fmt(t);
+  const k = bestKey(count), prev = getBest(k), record = !prev || t < prev;
+  if (record) setBest(k, Math.round(t));
+  $("endTitle").textContent = record ? "Nouveau record !" : "Terminé !";
+  $("endTime").textContent = fmt(t);
+  $("endLine").textContent = qs.length + " questions · " + errors + " erreur" + (errors > 1 ? "s" : "") + " (+" + errors * 2 + " s)"
+    + (missed.length ? " · " + missed.length + " réponse" + (missed.length > 1 ? "s" : "") + " donnée" + (missed.length > 1 ? "s" : "") : "")
+    + (record ? "" : " · record " + fmt(prev));
+  $("table").innerHTML = Array.from({ length: 26 }, (_, k) => k + 1)
+    .map(n => '<div class="' + (missed.includes(n) ? "miss" : MARKS.includes(n) ? "mark" : "") + '"><b>' + ABC[n - 1] + "</b>" + n + "</div>").join("");
+  $("tableNote").textContent = missed.length ? "L'alphabet. En jaune : les lettres à revoir." : "L'alphabet, pour réviser.";
+  show("end");
+}
+
+$("countRange").addEventListener("input", e => {
+  count = Number(e.target.value); $("countVal").textContent = count;
+  try { localStorage.setItem("lettres-count", count); } catch (err) {}
+  showBest();
+});
+$("startBtn").addEventListener("click", start);
+$("quit").addEventListener("click", () => { running = false; cancelAnimationFrame(raf); input.blur(); showHome(); });
+$("again").addEventListener("click", start);
+$("toMenu").addEventListener("click", showHome);
+showHome();
+</script>
+
+</body></html>
